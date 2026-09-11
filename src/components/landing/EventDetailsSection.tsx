@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { CalendarDays, Clock, MapPin, Crosshair, Navigation } from "lucide-react";
 import { EVENT } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,12 @@ import { Button } from "@/components/ui/button";
 const eventDate = new Date(EVENT.date);
 
 export function EventDetailsSection() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${EVENT.venue.name}, ${EVENT.venue.address}`
   )}`;
@@ -31,7 +38,9 @@ export function EventDetailsSection() {
             </div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-purple-200/70">Date</h3>
             <p className="mt-2 font-display text-xl font-semibold text-white">
-              {eventDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+              {mounted
+                ? eventDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
+                : "October 17, 2026"}
             </p>
           </div>
 

@@ -30,13 +30,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-purple-200/70">
               <li className="flex items-center gap-2">
                 <CalendarDays className="h-4 w-4 text-amber-400" />
-                {EVENT.date === "2026-10-17"
-                  ? "17 October 2026"
-                  : new Date(EVENT.date).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
+                17 October 2026
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-amber-400" />
