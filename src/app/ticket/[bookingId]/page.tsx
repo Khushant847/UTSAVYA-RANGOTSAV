@@ -58,7 +58,7 @@ export default async function TicketPage({ params }: PageProps) {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(11,10,31,0.92) 0%, rgba(11,10,31,0.6) 35%, rgba(11,10,31,0.92) 100%)",
+            "linear-gradient(180deg, rgba(11,10,31,0.65) 0%, rgba(11,10,31,0.25) 42%, rgba(11,10,31,0.1) 50%, rgba(11,10,31,0.25) 58%, rgba(11,10,31,0.65) 100%)",
         }}
       />
       <div className="absolute inset-0 mandala-pattern" />

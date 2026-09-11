@@ -108,7 +108,7 @@ export function AdminShell({ admin, children }: AdminShellProps) {
         className="pointer-events-none fixed inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(11,10,31,0.94) 0%, rgba(11,10,31,0.82) 45%, rgba(11,10,31,0.96) 100%)",
+            "linear-gradient(180deg, rgba(11,10,31,0.8) 0%, rgba(11,10,31,0.55) 45%, rgba(11,10,31,0.4) 50%, rgba(11,10,31,0.55) 55%, rgba(11,10,31,0.82) 100%)",
         }}
       />
 

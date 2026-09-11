@@ -27,7 +27,7 @@ export function HeroSection() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(11,10,31,0.92) 0%, rgba(11,10,31,0.55) 30%, rgba(11,10,31,0.25) 50%, rgba(11,10,31,0.55) 70%, rgba(11,10,31,0.92) 100%)",
+            "linear-gradient(180deg, rgba(11,10,31,0.7) 0%, rgba(11,10,31,0.25) 40%, rgba(11,10,31,0.1) 50%, rgba(11,10,31,0.25) 60%, rgba(11,10,31,0.7) 100%)",
         }}
       />
       {/* Decorative background elements */}

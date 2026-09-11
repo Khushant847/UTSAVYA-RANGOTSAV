@@ -16,7 +16,7 @@ export default function BookingLayout({ children }: { children: React.ReactNode 
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(11,10,31,0.9) 0%, rgba(11,10,31,0.55) 40%, rgba(11,10,31,0.9) 100%)",
+            "linear-gradient(180deg, rgba(11,10,31,0.6) 0%, rgba(11,10,31,0.2) 45%, rgba(11,10,31,0.06) 50%, rgba(11,10,31,0.2) 55%, rgba(11,10,31,0.6) 100%)",
         }}
       />
       <div className="absolute inset-0 mandala-pattern" />

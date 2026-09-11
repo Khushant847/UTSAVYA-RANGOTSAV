@@ -77,7 +77,7 @@ function AdminLoginContent() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(11,10,31,0.92) 0%, rgba(11,10,31,0.65) 45%, rgba(11,10,31,0.92) 100%)",
+            "linear-gradient(180deg, rgba(11,10,31,0.68) 0%, rgba(11,10,31,0.28) 45%, rgba(11,10,31,0.12) 50%, rgba(11,10,31,0.28) 55%, rgba(11,10,31,0.68) 100%)",
         }}
       />
       <div className="pointer-events-none absolute inset-0">

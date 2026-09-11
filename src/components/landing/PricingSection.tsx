@@ -38,7 +38,7 @@ export function PricingSection() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(20,18,51,0.94) 0%, rgba(20,18,51,0.6) 40%, rgba(20,18,51,0.94) 100%)",
+            "linear-gradient(180deg, rgba(20,18,51,0.55) 0%, rgba(20,18,51,0.15) 45%, rgba(20,18,51,0.05) 50%, rgba(20,18,51,0.15) 55%, rgba(20,18,51,0.55) 100%)",
         }}
       />
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
