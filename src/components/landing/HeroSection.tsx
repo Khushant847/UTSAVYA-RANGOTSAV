@@ -22,7 +22,13 @@ export function HeroSection() {
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: "url(/images/bg-1.jpg)" }}
       />
-      <div className="absolute inset-0 bg-[#0b0a1f]/60" />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(11,10,31,0.92) 0%, rgba(11,10,31,0.55) 30%, rgba(11,10,31,0.25) 50%, rgba(11,10,31,0.55) 70%, rgba(11,10,31,0.92) 100%)",
+        }}
+      />
       {/* Decorative background elements */}
       <div className="absolute inset-0 mandala-pattern" />
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-purple-600/20 blur-3xl float" />
