@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { CalendarDays, Clock, MapPin, Crosshair, Navigation } from "lucide-react";
 import { EVENT } from "@/lib/constants";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CalendarDays, Clock, MapPin, Sparkles, ChevronDown } from "lucide-react";
@@ -15,6 +17,12 @@ export function HeroSection() {
 
   return (
     <section id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden utsavya-gradient">
+      {/* Photo background + overlay */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url(/images/bg-1.jpg)" }}
+      />
+      <div className="absolute inset-0 bg-[#0b0a1f]/60" />
       {/* Decorative background elements */}
       <div className="absolute inset-0 mandala-pattern" />
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-purple-600/20 blur-3xl float" />
