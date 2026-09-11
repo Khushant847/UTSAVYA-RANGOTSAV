@@ -99,7 +99,19 @@ export function AdminShell({ admin, children }: AdminShellProps) {
   );
 
   return (
-    <div className="min-h-screen bg-[#0b0a1f]">
+    <div className="relative min-h-screen bg-[#0b0a1f] overflow-hidden">
+      <div
+        className="pointer-events-none fixed inset-0 bg-cover bg-top"
+        style={{ backgroundImage: "url(/images/bg-2.jpg)" }}
+      />
+      <div
+        className="pointer-events-none fixed inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(11,10,31,0.94) 0%, rgba(11,10,31,0.82) 45%, rgba(11,10,31,0.96) 100%)",
+        }}
+      />
+
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-purple-500/15 bg-[#0b0a1f] lg:block">
         {sidebar}
@@ -135,7 +147,7 @@ export function AdminShell({ admin, children }: AdminShellProps) {
           </div>
         </header>
 
-        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="relative z-10 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

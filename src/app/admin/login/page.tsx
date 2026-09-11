@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { toast } from "sonner";
 import { Loader2, Lock, Mail, ShieldCheck } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,8 +68,29 @@ function AdminLoginContent() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center utsavya-gradient px-4">
-      <div className="w-full max-w-md">
+    <div className="relative flex min-h-screen items-center justify-center utsavya-gradient overflow-hidden px-4">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url(/images/bg-3.jpg)" }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(11,10,31,0.92) 0%, rgba(11,10,31,0.65) 45%, rgba(11,10,31,0.92) 100%)",
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0">
+        <Image
+          src="/images/ornament.png"
+          alt=""
+          aria-hidden="true"
+          fill
+          sizes="100vw"
+          className="object-contain opacity-15"
+        />
+      </div>
+      <div className="relative z-10 w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/20 to-purple-500/20">
             <ShieldCheck className="h-7 w-7 text-amber-400" />

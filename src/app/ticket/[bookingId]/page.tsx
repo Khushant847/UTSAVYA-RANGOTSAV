@@ -49,9 +49,20 @@ export default async function TicketPage({ params }: PageProps) {
   const qrUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/ticket/verify?token=${ticket.qrToken}`;
 
   return (
-    <div className="relative min-h-screen utsavya-gradient pt-24 pb-16">
+    <div className="relative min-h-screen utsavya-gradient pt-24 pb-16 overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url(/images/bg-1.jpg)" }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(11,10,31,0.92) 0%, rgba(11,10,31,0.6) 35%, rgba(11,10,31,0.92) 100%)",
+        }}
+      />
       <div className="absolute inset-0 mandala-pattern" />
-      <div className="relative mx-auto max-w-2xl px-4">
+      <div className="relative z-10 mx-auto max-w-2xl px-4">
         <div className="mb-8 text-center">
           <h1 className="font-display text-2xl font-bold text-white">Your Digital Pass</h1>
           <p className="mt-1 text-sm text-purple-200/70">

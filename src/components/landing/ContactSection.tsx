@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Mail, ShieldCheck } from "lucide-react";
 import { InstagramIcon } from "@/components/shared/InstagramIcon";
 import { EVENT } from "@/lib/constants";
@@ -14,9 +15,19 @@ const TERMS = [
 
 export function ContactSection() {
   return (
-    <section id="contact" className="relative py-20 utsavya-gradient">
+    <section id="contact" className="relative overflow-hidden py-20 utsavya-gradient">
       <div className="absolute inset-0 mandala-pattern" />
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute inset-0">
+        <Image
+          src="/images/ornament.png"
+          alt=""
+          aria-hidden="true"
+          fill
+          sizes="100vw"
+          className="object-contain opacity-20"
+        />
+      </div>
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-400 mb-3">

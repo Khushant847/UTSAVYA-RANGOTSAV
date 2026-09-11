@@ -33,8 +33,9 @@ export default function VerifyEmailPage() {
       await sendEmailVerificationCode(email);
       setStep("verify");
       toast.success("Verification code sent to your email!");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to send verification email.");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to send verification email.";
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -52,8 +53,9 @@ export default function VerifyEmailPage() {
       setIsEmailVerified(true);
       toast.success("Email verified successfully!");
       router.push("/booking/step-2");
-    } catch (error: any) {
-      toast.error(error.message || "Invalid verification code.");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Invalid verification code.";
+      toast.error(message);
     } finally {
       setIsVerifying(false);
     }

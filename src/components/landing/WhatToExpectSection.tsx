@@ -49,9 +49,20 @@ const EXPERIENCES = [
 
 export function WhatToExpectSection() {
   return (
-    <section id="what-to-expect" className="relative py-20 utsavya-gradient">
+    <section id="what-to-expect" className="relative py-20 utsavya-gradient overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url(/images/bg-3.jpg)" }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(11,10,31,0.94) 0%, rgba(11,10,31,0.6) 40%, rgba(11,10,31,0.94) 100%)",
+        }}
+      />
       <div className="absolute inset-0 mandala-pattern" />
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-400 mb-3">
             What to Expect

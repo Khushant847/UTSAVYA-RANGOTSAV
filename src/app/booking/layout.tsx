@@ -7,9 +7,20 @@ const STEPS = [
 
 export default function BookingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen utsavya-gradient pt-24 pb-16">
+    <div className="relative min-h-screen utsavya-gradient pt-24 pb-16 overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url(/images/bg-4.jpg)" }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(11,10,31,0.9) 0%, rgba(11,10,31,0.55) 40%, rgba(11,10,31,0.9) 100%)",
+        }}
+      />
       <div className="absolute inset-0 mandala-pattern" />
-      <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
+      <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
         <div className="mb-10">
           <h1 className="text-center font-display text-2xl font-bold text-white sm:text-3xl">
             <span className="text-gold-gradient">UTSAVYA</span> RANGOTSAV

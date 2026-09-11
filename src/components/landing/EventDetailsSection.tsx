@@ -11,7 +11,8 @@ export function EventDetailsSection() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -19,8 +20,19 @@ export function EventDetailsSection() {
   )}`;
 
   return (
-    <section id="event-details" className="relative py-20 utsavya-gradient-light">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section id="event-details" className="relative py-20 utsavya-gradient-light overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url(/images/bg-2.jpg)" }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(20,18,51,0.92) 0%, rgba(20,18,51,0.6) 40%, rgba(20,18,51,0.92) 100%)",
+        }}
+      />
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-400 mb-3">
             Event Details
