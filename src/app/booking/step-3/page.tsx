@@ -37,6 +37,11 @@ export default function BookingStep3() {
   const { openCheckout, loading: checkoutLoading } = useRazorpay();
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const state = useBookingStore.getState();
@@ -44,6 +49,8 @@ export default function BookingStep3() {
       router.replace("/booking/step-2");
     }
   }, [router]);
+
+  if (!mounted) return null;
 
   const passLabel =
     passType === "single" ? "SINGLE PASS" : passType === "duo" ? "DUO PASS" : "FAMILY / GROUP PASS";
