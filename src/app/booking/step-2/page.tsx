@@ -20,6 +20,11 @@ export default function BookingStep2() {
   const [selected, setSelected] = useState<PassTypeId | null>(
     useBookingStore.getState().passType
   );
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Guard: require personal details and email verification
   useEffect(() => {
@@ -92,7 +97,9 @@ export default function BookingStep2() {
               <h3 className="font-display text-lg font-bold text-white">{pass.name}</h3>
               <div className="mt-2 flex items-baseline gap-1">
                 <span className="font-display text-4xl font-black text-gold-gradient">
-                  ₹{(pass.price / 100).toLocaleString("en-IN")}
+                  {mounted
+                    ? `₹${(pass.price / 100).toLocaleString("en-IN")}`
+                    : `₹${pass.price / 100}`}
                 </span>
               </div>
               <p className="mt-1 text-sm text-purple-200/70">{pass.label}</p>

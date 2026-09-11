@@ -1,29 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import {
-  Loader2,
-  ShieldCheck,
-  ArrowLeft,
-  User,
-  Mail,
-  Phone,
-  Ticket,
-  Users,
-  IndianRupee,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useBookingStore } from "@/stores/booking-store";
-import { useRazorpay } from "@/hooks/useRazorpay";
-import { formatPrice } from "@/lib/utils";
-import { createRazorpayOrder, verifyPayment } from "@/actions/booking";
-
-"use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

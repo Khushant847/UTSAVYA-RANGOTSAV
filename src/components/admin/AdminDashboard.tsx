@@ -72,6 +72,11 @@ const STAT_CARDS: {
 export function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -107,7 +112,7 @@ export function AdminDashboard() {
           <h1 className="font-display text-2xl font-bold text-white">Dashboard</h1>
           <p className="text-sm text-purple-200/60">
             Live event statistics • Updated{" "}
-            {stats ? lastUpdated.toLocaleTimeString("en-IN") : "..."}
+            {mounted && stats ? lastUpdated.toLocaleTimeString("en-IN") : "..."}
           </p>
         </div>
         <div className="flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-300">
@@ -192,7 +197,8 @@ export function AdminDashboard() {
                 <card.icon className={cn("h-5 w-5", card.accent)} />
               </div>
               <p className="mt-2 font-display text-3xl font-black text-white">
-                {value === null ? "..." : card.format ? card.format(value) : value.toLocaleString("en-IN")}
+                {mounted && (value === null ? "..." : card.format ? card.format(value) : value.toLocaleString("en-IN"))}
+                {!mounted && (value === null ? "..." : card.format ? card.format(value) : value)}
               </p>
             </div>
           );

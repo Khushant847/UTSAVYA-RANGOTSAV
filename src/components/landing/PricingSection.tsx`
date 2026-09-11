@@ -62,7 +62,7 @@ export function PricingSection() {
             Secure your entry for a night of Garba, Dandiya and celebration. Each pass includes
             full access to all experiences.
           </p>
-        </div>
+        </div}
 
         <div className="grid gap-6 md:grid-cols-3">
           {(Object.keys(PASS_TYPES) as PassTypeId[]).map((key) => {

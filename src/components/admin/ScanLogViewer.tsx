@@ -32,7 +32,7 @@ interface ScanLog {
   scannedBy: string;
 }
 
-function formatScanTime(value: unknown): string {
+function formatScanTime(value: unknown, mounted: boolean): string {
   let date: Date | null = null;
   if (value instanceof Date) {
     date = value;
@@ -43,19 +43,24 @@ function formatScanTime(value: unknown): string {
   ) {
     date = (value as { toDate: () => Date }).toDate();
   }
-  return date
-    ? date.toLocaleString("en-IN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-      })
-    : "N/A";
+  if (!date) return "N/A";
+  if (!mounted) return date.toString();
+  return date.toLocaleString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
 }
 
 export function ScanLogViewer() {
   const [logs, setLogs] = useState<ScanLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -130,7 +135,7 @@ export function ScanLogViewer() {
                   logs.map((log) => (
                     <TableRow key={log.id} className="hover:bg-purple-500/5">
                       <TableCell className="whitespace-nowrap text-xs">
-                        {formatScanTime(log.scannedAt)}
+                        {formatScanTime(log.scannedAt, mounted)}
                       </TableCell>
                       <TableCell className="font-medium">{log.name}</TableCell>
                       <TableCell className="font-mono text-xs">{log.ticketId}</TableCell>
