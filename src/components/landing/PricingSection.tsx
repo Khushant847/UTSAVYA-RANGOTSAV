@@ -90,7 +90,9 @@ export function PricingSection() {
                   <span className="text-sm text-purple-200/70">From</span>
                   <div className="flex items-baseline gap-1">
                     <span className="font-display text-5xl font-black text-gold-gradient">
-                      ₹{(pass.price / 100).toLocaleString("en-IN")}
+                      {mounted
+                        ? `₹${(pass.price / 100).toLocaleString("en-IN")}`
+                        : `₹${pass.price / 100}`}
                     </span>
                   </div>
                   <p className="mt-1 text-sm text-purple-200/70">{pass.label}</p>

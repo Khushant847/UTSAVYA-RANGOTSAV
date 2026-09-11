@@ -22,6 +22,30 @@ import { useRazorpay } from "@/hooks/useRazorpay";
 import { formatPrice } from "@/lib/utils";
 import { createRazorpayOrder, verifyPayment } from "@/actions/booking";
 
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  Loader2,
+  ShieldCheck,
+  ArrowLeft,
+  User,
+  Mail,
+  Phone,
+  Ticket,
+  Users,
+  IndianRupee,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { useBookingStore } from "@/stores/booking-store";
+import { useRazorpay } from "@/hooks/useRazorpay";
+import { formatPrice } from "@/lib/utils";
+import { createRazorpayOrder, verifyPayment } from "@/actions/booking";
+
 export function PaymentForm() {
   const router = useRouter();
   const {
@@ -37,11 +61,21 @@ export function PaymentForm() {
   const { openCheckout, loading: checkoutLoading } = useRazorpay();
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const passLabel =
     passType === "single" ? "SINGLE PASS" : passType === "duo" ? "DUO PASS" : "FAMILY / GROUP PASS";
 
   const handleProceedToPayment = async () => {
+    if (!name || !email || !mobile || !passType) {
+      toast.error("Please complete your details first.");
+      return;
+    }
+
     setProcessing(true);
     setError(null);
     try {
@@ -109,6 +143,14 @@ export function PaymentForm() {
     }
   };
 
+  if (!isMounted) {
+    return (
+      <div className="mx-auto max-w-xl flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-xl">
       <Card>
@@ -124,7 +166,7 @@ export function PaymentForm() {
               </div>
               <div>
                 <p className="text-sm text-purple-200/60">Name</p>
-                <p className="font-medium text-white">{name}</p>
+                <p className="font-medium text-white">{name || "Not provided"}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -133,7 +175,7 @@ export function PaymentForm() {
               </div>
               <div>
                 <p className="text-sm text-purple-200/60">Email</p>
-                <p className="font-medium text-white">{email}</p>
+                <p className="font-medium text-white">{email || "Not provided"}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -142,7 +184,7 @@ export function PaymentForm() {
               </div>
               <div>
                 <p className="text-sm text-purple-200/60">Mobile</p>
-                <p className="font-medium text-white">{mobile}</p>
+                <p className="font-medium text-white">{mobile || "Not provided"}</p>
               </div>
             </div>
           </div>
