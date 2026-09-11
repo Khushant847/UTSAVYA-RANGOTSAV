@@ -1,5 +1,4 @@
-"use client";
-
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CalendarDays, Clock, MapPin, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,12 @@ import { EVENT } from "@/lib/constants";
 const eventDate = new Date(EVENT.date);
 
 export function HeroSection() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <section id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden utsavya-gradient">
       {/* Decorative background elements */}
@@ -47,7 +52,9 @@ export function HeroSection() {
             <div className="text-left">
               <p className="text-sm text-purple-200/70">Date</p>
               <p className="font-semibold text-white">
-                {eventDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                {mounted
+                  ? eventDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
+                  : "October 17, 2026"}
               </p>
             </div>
           </div>

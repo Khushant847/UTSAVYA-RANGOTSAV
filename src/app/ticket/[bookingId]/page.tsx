@@ -56,7 +56,7 @@ export default async function TicketPage({ params }: PageProps) {
           <h1 className="font-display text-2xl font-bold text-white">Your Digital Pass</h1>
           <p className="mt-1 text-sm text-purple-200/70">
             Present this pass at the {EVENT.name} entrance on{" "}
-            {new Date(EVENT.date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}.
+            October 17, 2026.
           </p>
         </div>
         <TicketCard ticket={toTicketData(ticket)} qrUrl={qrUrl} />
