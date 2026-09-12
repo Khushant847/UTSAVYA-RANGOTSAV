@@ -31,7 +31,13 @@ export async function createRazorpayOrder(input: CreateOrderInput) {
       throw new Error("This phone number has already been used for a confirmed booking.");
     }
     if (ticket.paymentStatus === "pending") {
-      throw new Error("A booking is already in progress for this phone number. Please complete it or try again later.");
+      const createdAt = ticket.createdAt.toDate ? ticket.createdAt.toDate() : new Date(ticket.createdAt);
+      const diffInMinutes = (new Date().getTime() - createdAt.getTime()) / (1000 * 60);
+
+      if (diffInMinutes < 2) {
+        throw new Error("A booking is already in progress for this phone number. Please complete it or try again later.");
+      }
+      // If the pending booking is older than 2 minutes, we allow a new attempt
     }
   }
 

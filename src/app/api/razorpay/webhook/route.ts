@@ -83,6 +83,11 @@ export async function POST(request: NextRequest) {
       }
 
       case "payment.failed": {
+        console.log(`[Webhook] Payment failed for Order: ${orderId}`, {
+          paymentId: payment.id,
+          failureReason: payload.payload?.payment?.entity?.error || "Unknown reason",
+          timestamp: new Date().toISOString(),
+        });
         await adminDb.runTransaction(async (transaction) => {
           transaction.update(ticketRef, {
             paymentStatus: "failed",
