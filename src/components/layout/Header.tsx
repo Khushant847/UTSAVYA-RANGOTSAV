@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,11 @@ const NAV_LINKS = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const showNavLinks =
+    !pathname.startsWith("/booking") &&
+    !pathname.startsWith("/ticket") &&
+    !pathname.startsWith("/admin");
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 24);
@@ -43,17 +49,19 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-purple-100/80 transition-colors hover:text-amber-300"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        {showNavLinks && (
+          <nav className="hidden md:flex items-center gap-8">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-purple-100/80 transition-colors hover:text-amber-300"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         <div className="hidden md:block">
           <Link href="/booking">
@@ -75,16 +83,17 @@ export function Header() {
       {menuOpen && (
         <div className="md:hidden border-t border-purple-500/15 bg-[#0b0a1f]/95 backdrop-blur-xl px-4 py-4">
           <nav className="flex flex-col gap-4">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className="text-sm font-medium text-purple-100/80 transition-colors hover:text-amber-300"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {showNavLinks &&
+              NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="text-sm font-medium text-purple-100/80 transition-colors hover:text-amber-300"
+                >
+                  {link.label}
+                </Link>
+              ))}
             <Link href="/booking" onClick={() => setMenuOpen(false)}>
               <Button className="w-full">
                 GET YOUR PASS
