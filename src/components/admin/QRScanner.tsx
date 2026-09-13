@@ -16,6 +16,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { scanTicket, type ScanResult } from "@/actions/scan";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +38,7 @@ export function QRScanner() {
   const [cameraActive, setCameraActive] = useState(false);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [lastScanned, setLastScanned] = useState<string | null>(null);
+  const [resultDialogOpen, setResultDialogOpen] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -71,6 +80,14 @@ export function QRScanner() {
         setResult({ success: false, reason: "Verification error" });
       } finally {
         setScanning(false);
+        // Lock the scanner: show the result dialog and pause decoding until
+        // the gate attendant closes it, so no next ticket gets scanned by mistake.
+        setResultDialogOpen(true);
+        if (scannerRef.current) {
+          try {
+            scannerRef.current.pause();
+          } catch {}
+        }
       }
     },
     [extractToken, lastScanned]
@@ -112,6 +129,15 @@ export function QRScanner() {
       setCameraActive(false);
     }
   }, [cameraActive]);
+
+  const resumeScanner = useCallback(() => {
+    setResultDialogOpen(false);
+    if (scannerRef.current) {
+      try {
+        scannerRef.current.resume();
+      } catch {}
+    }
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -262,6 +288,96 @@ export function QRScanner() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog
+        open={resultDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            resumeScanner();
+          }
+        }}
+      >
+        <DialogContent
+          className="sm:max-w-md"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-center font-display">Scan Result</DialogTitle>
+          </DialogHeader>
+          {result ? (
+            result.success && result.ticket ? (
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-6 text-center">
+                  <CheckCircle2 className="mx-auto mb-2 h-12 w-12 text-emerald-400" />
+                  <p className="font-display text-2xl font-bold text-emerald-300">
+                    VALID ENTRY
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs font-medium uppercase tracking-widest text-purple-200/50">
+                    Guest
+                  </p>
+                  <p className="font-display mt-1 text-3xl font-bold text-white">
+                    {result.ticket.name}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-xl bg-white/[0.05] p-3">
+                    <p className="text-[11px] uppercase tracking-wide text-purple-200/50">Pass</p>
+                    <Badge className="mt-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                      {passLabels[result.ticket.passType] || result.ticket.passType}
+                    </Badge>
+                  </div>
+                  <div className="rounded-xl bg-white/[0.05] p-3">
+                    <p className="text-[11px] uppercase tracking-wide text-purple-200/50">Used</p>
+                    <p className="mt-1 font-bold text-white">
+                      {result.ticket.usedEntries}/{result.ticket.allowedEntries}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white/[0.05] p-3">
+                    <p className="text-[11px] uppercase tracking-wide text-purple-200/50">Left</p>
+                    <p
+                      className={cn(
+                        "mt-1 font-bold",
+                        result.ticket.remainingEntries > 0 ? "text-emerald-400" : "text-red-400"
+                      )}
+                    >
+                      {result.ticket.remainingEntries}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-6 text-center">
+                  <XCircle className="mx-auto mb-2 h-12 w-12 text-red-400" />
+                  <p className="font-display text-2xl font-bold text-red-300">INVALID ENTRY</p>
+                </div>
+                <p className="text-center text-sm text-purple-200/70">{result?.reason}</p>
+                {result?.ticket && (
+                  <div className="rounded-xl border border-purple-500/15 bg-white/[0.04] p-4 text-center text-sm">
+                    <p className="font-semibold text-white">{result.ticket.name}</p>
+                    <p className="mt-1 text-purple-200/60">
+                      {passLabels[result.ticket.passType]} • {result.ticket.usedEntries}/
+                      {result.ticket.allowedEntries} entries used
+                    </p>
+                  </div>
+                )}
+              </div>
+            )
+          ) : (
+            <div className="py-6 text-center text-sm text-purple-200/70">No scan result.</div>
+          )}
+          <DialogFooter className="sm:justify-center">
+            <DialogClose asChild>
+              <Button className="w-full gap-2 sm:w-auto">
+                <ScanLine className="h-4 w-4" />
+                NEXT SCAN
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Button variant="ghost" onClick={() => setResult(null)} className="gap-2" disabled={!result}>
         <RotateCw className="h-4 w-4" />
