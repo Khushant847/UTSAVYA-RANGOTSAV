@@ -70,7 +70,7 @@ function ConfirmationContent() {
   }, [bookingId, router]);
 
   const qrUrl = ticket?.qrToken
-    ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/ticket/verify?token=${ticket.qrToken}`
+    ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/verify?token=${ticket.qrToken}`
     : "";
 
   const handleDownload = async () => {
