@@ -5,6 +5,7 @@ import { getRazorpay } from "@/lib/razorpay/client";
 import { generateBookingId, generateTicketId, generateQRToken } from "@/lib/utils/ids";
 import { COLLECTIONS, PASS_TYPES, PassTypeId } from "@/lib/constants";
 import { sendTicketEmailForBooking } from "@/lib/email";
+import { pushBookingToSheet } from "@/lib/spreadsheet";
 import { z } from "zod";
 
 const CreateOrderSchema = z.object({
@@ -162,6 +163,24 @@ export async function verifyPayment(
     sendTicketEmailForBooking(finalTicketData.bookingId).catch((err) =>
       console.error(`[Email] Failed to send confirmation for ${finalTicketData.bookingId}:`, err)
     );
+
+    // Log booking to Google Sheet (fire-and-forget)
+    pushBookingToSheet({
+      bookingId: finalTicketData.bookingId,
+      ticketId: finalTicketData.ticketId,
+      name: finalTicketData.name,
+      email: finalTicketData.email,
+      mobile: finalTicketData.mobile,
+      passType: finalTicketData.passType,
+      amount: finalTicketData.passPrice,
+      currency: "INR",
+      allowedEntries: finalTicketData.allowedEntries,
+      usedEntries: finalTicketData.usedEntries,
+      status: "paid",
+      razorpayOrderId: orderId,
+      razorpayPaymentId: paymentId,
+      createdAt: new Date().toISOString(),
+    }).catch((err) => console.error("[Spreadsheet] Failed to push booking row:", err));
 
     return {
       success: true,
