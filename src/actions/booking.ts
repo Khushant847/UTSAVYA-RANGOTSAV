@@ -215,6 +215,27 @@ export async function markPaymentFailed(orderId: string) {
       status: "failed",
       updatedAt: new Date(),
     });
+
+    const ticketDoc = await ticketRef.get();
+    const td = ticketDoc.exists ? ticketDoc.data() : null;
+    if (td) {
+      pushBookingToSheet({
+        bookingId: td.bookingId,
+        ticketId: td.ticketId,
+        name: td.name,
+        email: td.email,
+        mobile: td.mobile,
+        passType: td.passType,
+        amount: td.passPrice,
+        currency: "INR",
+        allowedEntries: td.allowedEntries,
+        usedEntries: td.usedEntries,
+        status: "failed",
+        razorpayOrderId: orderId,
+        razorpayPaymentId: "",
+        createdAt: new Date().toISOString(),
+      }).catch((err) => console.error("[Spreadsheet] Failed to push booking row:", err));
+    }
   }
 
   return { success: true };
