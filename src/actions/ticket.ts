@@ -24,26 +24,39 @@ export interface TicketLookup {
   ticketStatus: string;
 }
 
-export async function getTicketByBookingId(bookingId: string): Promise<TicketLookup | null> {
-  const ticketRef = adminDb.collection(COLLECTIONS.tickets).doc(bookingId);
-  const ticketDoc = await ticketRef.get();
-
-  if (!ticketDoc.exists) {
-    return null;
-  }
-
-  const data = ticketDoc.data();
-  if (!data) return null;
-
-  // Sanitize Firestore Timestamps for Next.js serialization
-  const sanitizedData = { ...data };
-  for (const key in sanitizedData) {
-    if (sanitizedData[key] && typeof sanitizedData[key] === "object" && "toDate" in sanitizedData[key]) {
-      (sanitizedData as any)[key] = (sanitizedData[key] as any).toDate().toISOString();
+function sanitizePlainDoc(data: Record<string, unknown>): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = { ...data };
+  for (const key in sanitized) {
+    const value = sanitized[key];
+    if (
+      value &&
+      typeof value === "object" &&
+      "toDate" in value &&
+      typeof (value as { toDate?: unknown }).toDate === "function"
+    ) {
+      sanitized[key] = (value as { toDate(): Date }).toDate().toISOString();
     }
   }
+  return sanitized;
+}
 
-  return { ...sanitizedData, id: ticketDoc.id } as TicketLookup;
+export async function getTicketByBookingId(bookingId: string): Promise<TicketLookup | null> {
+  try {
+    const ticketRef = adminDb.collection(COLLECTIONS.tickets).doc(bookingId);
+    const ticketDoc = await ticketRef.get();
+
+    if (!ticketDoc.exists) {
+      return null;
+    }
+
+    const data = ticketDoc.data();
+    if (!data) return null;
+
+    return { ...sanitizePlainDoc(data), id: ticketDoc.id } as TicketLookup;
+  } catch (error) {
+    console.error(`[getTicketByBookingId] Failed for bookingId=${bookingId}:`, error);
+    throw error;
+  }
 }
 
 export async function getTicketByQRToken(token: string) {
@@ -57,14 +70,7 @@ export async function getTicketByQRToken(token: string) {
   const doc = snapshot.docs[0];
   const data = doc.data();
 
-  const sanitizedData = { ...data };
-  for (const key in sanitizedData) {
-    if (sanitizedData[key] && typeof sanitizedData[key] === "object" && "toDate" in sanitizedData[key]) {
-      (sanitizedData as any)[key] = (sanitizedData[key] as any).toDate().toISOString();
-    }
-  }
-
-  return { id: doc.id, ...sanitizedData };
+  return { id: doc.id, ...sanitizePlainDoc(data) };
 }
 
 export async function getTicketByOrderId(orderId: string) {
@@ -78,14 +84,7 @@ export async function getTicketByOrderId(orderId: string) {
   const doc = snapshot.docs[0];
   const data = doc.data();
 
-  const sanitizedData = { ...data };
-  for (const key in sanitizedData) {
-    if (sanitizedData[key] && typeof sanitizedData[key] === "object" && "toDate" in sanitizedData[key]) {
-      (sanitizedData as any)[key] = (sanitizedData[key] as any).toDate().toISOString();
-    }
-  }
-
-  return { id: doc.id, ...sanitizedData };
+  return { id: doc.id, ...sanitizePlainDoc(data) };
 }
 
 export async function getTicketByPaymentId(paymentId: string) {
@@ -99,14 +98,7 @@ export async function getTicketByPaymentId(paymentId: string) {
   const doc = snapshot.docs[0];
   const data = doc.data();
 
-  const sanitizedData = { ...data };
-  for (const key in sanitizedData) {
-    if (sanitizedData[key] && typeof sanitizedData[key] === "object" && "toDate" in sanitizedData[key]) {
-      (sanitizedData as any)[key] = (sanitizedData[key] as any).toDate().toISOString();
-    }
-  }
-
-  return { id: doc.id, ...sanitizedData };
+  return { id: doc.id, ...sanitizePlainDoc(data) };
 }
 
 export async function getAllTickets(search?: string, status?: string) {
@@ -131,7 +123,7 @@ export async function getAllTickets(search?: string, status?: string) {
 
   let tickets = snapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data(),
+    ...sanitizePlainDoc(doc.data()),
   })) as Record<string, unknown>[];
 
   if (search) {
@@ -162,7 +154,7 @@ export async function getScanLogs(limit = 100) {
 
   return snapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data(),
+    ...sanitizePlainDoc(doc.data()),
   })) as Record<string, unknown>[];
 }
 

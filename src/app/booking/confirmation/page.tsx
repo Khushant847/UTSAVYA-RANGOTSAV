@@ -10,6 +10,7 @@ import {
   Loader2,
   CheckCircle2,
   Home,
+  RefreshCcw,
 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
@@ -36,20 +37,32 @@ function ConfirmationContent() {
     }
 
     let active = true;
-    getTicketByBookingId(bookingId)
-      .then((data) => {
-        if (!active) return;
-        if (!data || data.paymentStatus !== "paid") {
-          toast.error("Ticket not found or payment incomplete.");
-          router.replace("/booking/step-1");
+
+    const loadTicket = async () => {
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const data = await getTicketByBookingId(bookingId);
+          if (!active) return;
+          if (!data || data.paymentStatus !== "paid") {
+            toast.error("Ticket not found or payment incomplete.");
+            router.replace("/booking/step-1");
+            return;
+          }
+          setTicket(data);
           return;
+        } catch (error) {
+          console.error(`[confirmation] Failed to load ticket (attempt ${attempt}/3):`, error);
+          if (attempt === 3) {
+            if (active) toast.error("Could not load your ticket. Please try again.");
+          } else {
+            await new Promise((resolve) => setTimeout(resolve, 800 * attempt));
+            if (!active) return;
+          }
         }
-        setTicket(data);
-      })
-      .catch(() => {
-        if (active) toast.error("Could not load your ticket.");
-      })
-      .finally(() => active && setLoading(false));
+      }
+    };
+
+    loadTicket().finally(() => active && setLoading(false));
 
     return () => {
       active = false;
@@ -93,7 +106,31 @@ function ConfirmationContent() {
     );
   }
 
-  if (!ticket) return null;
+  if (!ticket) {
+    return (
+      <div className="mx-auto max-w-xl py-20 text-center">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/15">
+          <RefreshCcw className="h-7 w-7 text-rose-400" />
+        </div>
+        <h2 className="font-display text-2xl font-black text-white">
+          Could not load your ticket
+        </h2>
+        <p className="mt-2 text-sm text-purple-200/70">
+          We couldn't load your pass right now. This might be a temporary issue.
+        </p>
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button onClick={() => window.location.reload()} className="gap-2">
+            <RefreshCcw className="h-4 w-4" />
+            Try Again
+          </Button>
+          <Button variant="ghost" className="mt-4 w-full gap-2" onClick={() => router.push("/")}>
+            <Home className="h-4 w-4" />
+            Back to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-2xl">
