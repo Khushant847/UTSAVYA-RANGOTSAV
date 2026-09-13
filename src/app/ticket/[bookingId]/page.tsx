@@ -46,7 +46,9 @@ export default async function TicketPage({ params }: PageProps) {
     );
   }
 
-  const qrUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/ticket/verify?token=${ticket.qrToken}`;
+  const qrUrl = ticket.qrToken
+    ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/ticket/verify?token=${ticket.qrToken}`
+    : "";
 
   return (
     <div className="relative min-h-screen utsavya-gradient pt-24 pb-16 overflow-hidden">

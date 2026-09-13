@@ -31,9 +31,19 @@ export default function BookingStep1() {
   });
 
   const onSubmit = handleSubmit((data) => {
+    console.log("Form submitted successfully with data:", data);
     setSubmitting(true);
-    setPersonalDetails(data);
-    router.push("/booking/verify-email");
+    try {
+      setPersonalDetails(data);
+      console.log("Personal details stored in store");
+      router.push("/booking/verify-email");
+      console.log("Redirecting to /booking/verify-email");
+    } catch (error) {
+      console.error("Error during form submission:", error);
+      setSubmitting(false);
+    }
+  }, (errors) => {
+    console.log("Form validation failed:", errors);
   });
 
   return (

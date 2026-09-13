@@ -5,6 +5,14 @@ import { getRazorpay } from "@/lib/razorpay/client";
 import { generateBookingId, generateTicketId, generateQRToken } from "@/lib/utils/ids";
 import { COLLECTIONS, PASS_TYPES, PassTypeId } from "@/lib/constants";
 import { sendTicketEmailForBooking } from "@/lib/email";
+import { z } from "zod";
+
+const CreateOrderSchema = z.object({
+  name: z.string().min(2).max(100),
+  email: z.string().email(),
+  mobile: z.string().regex(/^[0-9]{10}$/, "Invalid mobile number"),
+  passType: z.string(),
+});
 
 interface CreateOrderInput {
   name: string;
@@ -14,38 +22,48 @@ interface CreateOrderInput {
 }
 
 export async function createRazorpayOrder(input: CreateOrderInput) {
+  // 1. Validate Input
+  const validation = CreateOrderSchema.safeParse(input);
+  if (!validation.success) {
+    throw new Error(validation.error.errors[0].message);
+  }
+
   const pass = PASS_TYPES[input.passType];
+  if (!pass) {
+    throw new Error("Invalid pass type selected.");
+  }
+
   const bookingId = generateBookingId();
   const ticketId = generateTicketId();
   const qrToken = generateQRToken();
 
-  // Check if this phone number has already been used for a booking
-  const existingTickets = await adminDb
-    .collection(COLLECTIONS.tickets)
-    .where("mobile", "==", input.mobile)
-    .get();
-
-  if (!existingTickets.empty) {
-    const ticket = existingTickets.docs[0].data();
-    if (ticket.paymentStatus === "paid") {
-      throw new Error("This phone number has already been used for a confirmed booking.");
-    }
-    if (ticket.paymentStatus === "pending") {
-      const createdAt = ticket.createdAt.toDate ? ticket.createdAt.toDate() : new Date(ticket.createdAt);
-      const diffInMinutes = (new Date().getTime() - createdAt.getTime()) / (1000 * 60);
-
-      if (diffInMinutes < 2) {
-        throw new Error("A booking is already in progress for this phone number. Please complete it or try again later.");
-      }
-      // If the pending booking is older than 2 minutes, we allow a new attempt
-    }
-  }
+  // 2. Check for existing bookings (Removed restriction to allow multiple bookings per mobile number)
+  // The previous check that prevented multiple bookings for the same mobile number has been removed.
 
   const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
   if (!keyId) {
     throw new Error("Razorpay key not configured. Check your environment variables.");
   }
 
+  // 3. Create Razorpay Order FIRST
+  // This ensures we don't create Firestore records if the payment gateway is down
+  let order;
+  try {
+    order = await getRazorpay().orders.create({
+      amount: pass.price,
+      currency: "INR",
+      receipt: bookingId,
+      notes: {
+        ticketId,
+        passType: input.passType,
+      },
+    });
+  } catch (error) {
+    console.error("[Razorpay] Order creation failed:", error);
+    throw new Error("Failed to initiate payment with Razorpay. Please try again.");
+  }
+
+  // 4. Now save to Firestore
   const ticketRef = adminDb.collection(COLLECTIONS.tickets).doc(bookingId);
   await ticketRef.set({
     ticketId,
@@ -58,7 +76,7 @@ export async function createRazorpayOrder(input: CreateOrderInput) {
     allowedEntries: pass.entries,
     usedEntries: 0,
     remainingEntries: pass.entries,
-    razorpayOrderId: "",
+    razorpayOrderId: order.id,
     razorpayPaymentId: "",
     paymentStatus: "pending",
     qrToken,
@@ -67,18 +85,6 @@ export async function createRazorpayOrder(input: CreateOrderInput) {
     updatedAt: new Date(),
     scannedAt: null,
   });
-
-  const order = await getRazorpay().orders.create({
-    amount: pass.price,
-    currency: "INR",
-    receipt: bookingId,
-    notes: {
-      ticketId,
-      passType: input.passType,
-    },
-  });
-
-  await ticketRef.update({ razorpayOrderId: order.id });
 
   const paymentRef = adminDb.collection(COLLECTIONS.payments).doc(order.id);
   await paymentRef.set({
@@ -110,53 +116,66 @@ export async function verifyPayment(
   paymentId: string,
   signature: string
 ) {
-  const { verifyRazorpayPayment } = await import("@/lib/razorpay/client");
-  const isValid = verifyRazorpayPayment(orderId, paymentId, signature);
+  try {
+    const { verifyRazorpayPayment } = await import("@/lib/razorpay/client");
+    const isValid = verifyRazorpayPayment(orderId, paymentId, signature);
 
-  if (!isValid) {
-    return { success: false, error: "Invalid payment signature" };
-  }
+    if (!isValid) {
+      return { success: false, error: "Invalid payment signature" };
+    }
 
-  const paymentRef = adminDb.collection(COLLECTIONS.payments).doc(orderId);
-  const paymentDoc = await paymentRef.get();
+    const paymentRef = adminDb.collection(COLLECTIONS.payments).doc(orderId);
+    const paymentDoc = await paymentRef.get();
 
-  if (!paymentDoc.exists) {
-    return { success: false, error: "Payment record not found" };
-  }
+    if (!paymentDoc.exists) {
+      return { success: false, error: "Payment record not found" };
+    }
 
-  const paymentData = paymentDoc.data()!;
-  const ticketRef = adminDb.collection(COLLECTIONS.tickets).doc(paymentData.bookingId);
+    const paymentData = paymentDoc.data()!;
+    const ticketRef = adminDb.collection(COLLECTIONS.tickets).doc(paymentData.bookingId);
 
-  await adminDb.runTransaction(async (transaction) => {
-    const ticketDoc = await transaction.get(ticketRef);
-    if (!ticketDoc.exists) throw new Error("Ticket not found");
+    const finalTicketData = await adminDb.runTransaction(async (transaction) => {
+      const ticketDoc = await transaction.get(ticketRef);
+      if (!ticketDoc.exists) throw new Error("Ticket not found");
 
-    transaction.update(ticketRef, {
-      paymentStatus: "paid",
-      razorpayPaymentId: paymentId,
-      updatedAt: new Date(),
+      transaction.update(ticketRef, {
+        paymentStatus: "paid",
+        razorpayPaymentId: paymentId,
+        updatedAt: new Date(),
+      });
+
+      transaction.update(paymentRef, {
+        razorpayPaymentId: paymentId,
+        razorpaySignature: signature,
+        status: "captured",
+        updatedAt: new Date(),
+      });
+
+      return ticketDoc.data();
     });
 
-    transaction.update(paymentRef, {
-      razorpayPaymentId: paymentId,
-      razorpaySignature: signature,
-      status: "captured",
-      updatedAt: new Date(),
-    });
-  });
+    if (!finalTicketData) {
+      return { success: false, error: "Failed to update ticket" };
+    }
 
-  const ticketDoc = await ticketRef.get();
-  const ticketData = ticketDoc.data()!;
+    // Send confirmation email (idempotent - webhook may also trigger this)
+    sendTicketEmailForBooking(finalTicketData.bookingId).catch((err) =>
+      console.error(`[Email] Failed to send confirmation for ${finalTicketData.bookingId}:`, err)
+    );
 
-  // Send confirmation email (idempotent - webhook may also trigger this)
-  sendTicketEmailForBooking(ticketData.bookingId).catch(() => {});
-
-  return {
-    success: true,
-    bookingId: ticketData.bookingId,
-    ticketId: ticketData.ticketId,
-    qrToken: ticketData.qrToken,
-  };
+    return {
+      success: true,
+      bookingId: finalTicketData.bookingId,
+      ticketId: finalTicketData.ticketId,
+      qrToken: finalTicketData.qrToken,
+    };
+  } catch (error) {
+    console.error("[Payment] Verification error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An internal error occurred during payment verification"
+    };
+  }
 }
 
 export async function markPaymentFailed(orderId: string) {

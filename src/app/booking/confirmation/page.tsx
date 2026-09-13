@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import {
   PartyPopper,
   Download,
-  Share2,
   Save,
   Loader2,
   CheckCircle2,
@@ -57,7 +56,7 @@ function ConfirmationContent() {
     };
   }, [bookingId, router]);
 
-  const qrUrl = ticket
+  const qrUrl = ticket?.qrToken
     ? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/ticket/verify?token=${ticket.qrToken}`
     : "";
 
@@ -84,25 +83,6 @@ function ConfirmationContent() {
 
   const handleSave = async () => {
     await handleDownload();
-  };
-
-  const handleShare = async () => {
-    if (!ticket) return;
-    const shareData = {
-      title: "My UTSAVYA RANGOTSAV Pass",
-      text: `I'm attending UTSAVYA RANGOTSAV on 17 October 2026! Booking ID: ${ticket.bookingId}`,
-      url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/ticket/${ticket.bookingId}`,
-    };
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(shareData.url);
-        toast.success("Ticket link copied to clipboard!");
-      }
-    } catch {
-      // user cancelled share
-    }
   };
 
   if (loading) {
@@ -150,10 +130,6 @@ function ConfirmationContent() {
             <Button onClick={handleSave} variant="outline" className="gap-2">
               <Save className="h-4 w-4" />
               SAVE PASS
-            </Button>
-            <Button onClick={handleShare} variant="outline" className="gap-2">
-              <Share2 className="h-4 w-4" />
-              SHARE PASS
             </Button>
           </div>
 

@@ -32,7 +32,18 @@ export async function getTicketByBookingId(bookingId: string): Promise<TicketLoo
     return null;
   }
 
-  return { ...(ticketDoc.data() as TicketLookup), id: ticketDoc.id };
+  const data = ticketDoc.data();
+  if (!data) return null;
+
+  // Sanitize Firestore Timestamps for Next.js serialization
+  const sanitizedData = { ...data };
+  for (const key in sanitizedData) {
+    if (sanitizedData[key] && typeof sanitizedData[key] === "object" && "toDate" in sanitizedData[key]) {
+      (sanitizedData as any)[key] = (sanitizedData[key] as any).toDate().toISOString();
+    }
+  }
+
+  return { ...sanitizedData, id: ticketDoc.id } as TicketLookup;
 }
 
 export async function getTicketByQRToken(token: string) {
@@ -44,7 +55,16 @@ export async function getTicketByQRToken(token: string) {
   }
 
   const doc = snapshot.docs[0];
-  return { id: doc.id, ...doc.data() };
+  const data = doc.data();
+
+  const sanitizedData = { ...data };
+  for (const key in sanitizedData) {
+    if (sanitizedData[key] && typeof sanitizedData[key] === "object" && "toDate" in sanitizedData[key]) {
+      (sanitizedData as any)[key] = (sanitizedData[key] as any).toDate().toISOString();
+    }
+  }
+
+  return { id: doc.id, ...sanitizedData };
 }
 
 export async function getTicketByOrderId(orderId: string) {
@@ -56,7 +76,16 @@ export async function getTicketByOrderId(orderId: string) {
   }
 
   const doc = snapshot.docs[0];
-  return { id: doc.id, ...doc.data() };
+  const data = doc.data();
+
+  const sanitizedData = { ...data };
+  for (const key in sanitizedData) {
+    if (sanitizedData[key] && typeof sanitizedData[key] === "object" && "toDate" in sanitizedData[key]) {
+      (sanitizedData as any)[key] = (sanitizedData[key] as any).toDate().toISOString();
+    }
+  }
+
+  return { id: doc.id, ...sanitizedData };
 }
 
 export async function getTicketByPaymentId(paymentId: string) {
@@ -68,7 +97,16 @@ export async function getTicketByPaymentId(paymentId: string) {
   }
 
   const doc = snapshot.docs[0];
-  return { id: doc.id, ...doc.data() };
+  const data = doc.data();
+
+  const sanitizedData = { ...data };
+  for (const key in sanitizedData) {
+    if (sanitizedData[key] && typeof sanitizedData[key] === "object" && "toDate" in sanitizedData[key]) {
+      (sanitizedData as any)[key] = (sanitizedData[key] as any).toDate().toISOString();
+    }
+  }
+
+  return { id: doc.id, ...sanitizedData };
 }
 
 export async function getAllTickets(search?: string, status?: string) {
