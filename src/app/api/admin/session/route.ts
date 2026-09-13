@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/admin";
 import { COLLECTIONS } from "@/lib/constants";
+import { createAdminSessionToken, lookupAdminIdToken } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 
@@ -13,11 +14,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing token" }, { status: 400 });
     }
 
-    const { getAuth } = await import("firebase-admin/auth");
-    const auth = getAuth();
-    const decodedToken = await auth.verifyIdToken(idToken);
+    const user = await lookupAdminIdToken(idToken);
 
-    const adminRef = adminDb.collection(COLLECTIONS.admins).doc(decodedToken.uid);
+    if (!user) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    const adminRef = adminDb.collection(COLLECTIONS.admins).doc(user.uid);
     const adminDoc = await adminRef.get();
 
     if (!adminDoc.exists) {
@@ -29,22 +32,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Admin account is inactive" }, { status: 403 });
     }
 
-    // Verify admin identity via Firebase Auth
-    const adminUser = await auth.getUser(decodedToken.uid);
-
-    // Set HTTP-only session cookie (5 days)
-    const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn: 60 * 60 * 24 * 5 * 1000 });
+    const sessionToken = createAdminSessionToken({
+      uid: user.uid,
+      email: user.email,
+      displayName: adminData.displayName || user.displayName,
+      role: adminData.role,
+    });
 
     const response = NextResponse.json({
       success: true,
       admin: {
-        email: adminUser.email,
-        displayName: adminData.displayName || adminUser.displayName || "Admin",
+        email: user.email,
+        displayName: adminData.displayName || user.displayName,
         role: adminData.role,
       },
     });
 
-    response.cookies.set("admin_session", sessionCookie, {
+    response.cookies.set("admin_session", sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

@@ -1,14 +1,10 @@
 import "server-only";
 
 import { cookies } from "next/headers";
-import type { DecodedIdToken } from "firebase-admin/auth";
+import type { AdminSessionUser } from "@/lib/auth/session";
+import { verifySessionToken } from "@/lib/auth/session";
 
-export interface AdminSessionUser {
-  uid: string;
-  email: string;
-  displayName: string;
-  role: string;
-}
+export type { AdminSessionUser };
 
 export async function getAdminSession(): Promise<AdminSessionUser | null> {
   try {
@@ -19,20 +15,17 @@ export async function getAdminSession(): Promise<AdminSessionUser | null> {
       return null;
     }
 
-    const { getAuth } = await import("firebase-admin/auth");
-    const auth = getAuth();
-    const decoded = await auth.verifySessionCookie(sessionCookie, true);
+    const decoded = verifySessionToken<AdminSessionUser>(sessionCookie);
 
-    if (!decoded.uid) {
+    if (!decoded?.uid) {
       return null;
     }
 
-    const token = decoded as DecodedIdToken & { role?: string };
     return {
-      uid: token.uid,
-      email: token.email || "",
-      displayName: token.name || token.email?.split("@")[0] || "Admin",
-      role: token.role || "admin",
+      uid: decoded.uid,
+      email: decoded.email,
+      displayName: decoded.displayName,
+      role: decoded.role,
     };
   } catch {
     return null;

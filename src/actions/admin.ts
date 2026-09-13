@@ -3,6 +3,7 @@
 import { adminDb } from "@/lib/firebase/admin";
 import { COLLECTIONS } from "@/lib/constants";
 import { getAdminSession } from "@/lib/auth/admin";
+import { lookupAdminIdToken } from "@/lib/auth/session";
 
 export async function getAdminStats() {
   const admin = await getAdminSession();
@@ -55,11 +56,13 @@ export interface AdminSession {
 
 export async function verifyAndCreateAdminSession(token: string) {
   try {
-    const { getAuth } = await import("firebase-admin/auth");
-    const auth = getAuth();
-    const decodedToken = await auth.verifyIdToken(token);
+    const user = await lookupAdminIdToken(token);
 
-    const adminRef = adminDb.collection(COLLECTIONS.admins).doc(decodedToken.uid);
+    if (!user) {
+      return { success: false, error: "Invalid authentication token" };
+    }
+
+    const adminRef = adminDb.collection(COLLECTIONS.admins).doc(user.uid);
     const adminDoc = await adminRef.get();
 
     if (!adminDoc.exists) {
@@ -74,7 +77,7 @@ export async function verifyAndCreateAdminSession(token: string) {
     return {
       success: true,
       admin: {
-        email: adminData.email,
+        email: user.email,
         displayName: adminData.displayName,
         role: adminData.role,
         isActive: adminData.isActive,
