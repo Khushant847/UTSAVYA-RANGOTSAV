@@ -26,13 +26,11 @@ export default function BookingStep2() {
     setMounted(true);
   }, []);
 
-  // Guard: require personal details and email verification
+  // Guard: require personal details
   useEffect(() => {
     const state = useBookingStore.getState();
     if (!state.name) {
       router.replace("/booking/step-1");
-    } else if (!state.isEmailVerified) {
-      router.replace("/booking/verify-email");
     }
   }, [router]);
 

@@ -35,9 +35,7 @@ export default function BookingStep1() {
     setSubmitting(true);
     try {
       setPersonalDetails(data);
-      console.log("Personal details stored in store");
-      router.push("/booking/verify-email");
-      console.log("Redirecting to /booking/verify-email");
+      router.push("/booking/step-2");
     } catch (error) {
       console.error("Error during form submission:", error);
       setSubmitting(false);
