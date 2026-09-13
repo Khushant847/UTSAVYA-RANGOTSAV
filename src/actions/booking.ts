@@ -164,7 +164,7 @@ export async function verifyPayment(
       console.error(`[Email] Failed to send confirmation for ${finalTicketData.bookingId}:`, err)
     );
 
-    // Log booking to Google Sheet (fire-and-forget)
+    // Log booking to Google Sheet (fire-and-forget via waitUntil)
     pushBookingToSheet({
       bookingId: finalTicketData.bookingId,
       ticketId: finalTicketData.ticketId,
@@ -180,7 +180,7 @@ export async function verifyPayment(
       razorpayOrderId: orderId,
       razorpayPaymentId: paymentId,
       createdAt: new Date().toISOString(),
-    }).catch((err) => console.error("[Spreadsheet] Failed to push booking row:", err));
+    });
 
     return {
       success: true,
@@ -234,7 +234,7 @@ export async function markPaymentFailed(orderId: string) {
         razorpayOrderId: orderId,
         razorpayPaymentId: "",
         createdAt: new Date().toISOString(),
-      }).catch((err) => console.error("[Spreadsheet] Failed to push booking row:", err));
+      });
     }
   }
 
