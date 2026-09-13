@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
-import { getAuth, type DecodedIdToken } from "firebase-admin/auth";
+import type { DecodedIdToken } from "firebase-admin/auth";
 
 export interface AdminSessionUser {
   uid: string;
@@ -19,6 +19,7 @@ export async function getAdminSession(): Promise<AdminSessionUser | null> {
       return null;
     }
 
+    const { getAuth } = await import("firebase-admin/auth");
     const auth = getAuth();
     const decoded = await auth.verifySessionCookie(sessionCookie, true);
 

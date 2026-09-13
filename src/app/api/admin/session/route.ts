@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuth } from "firebase-admin/auth";
 import { adminDb } from "@/lib/firebase/admin";
 import { COLLECTIONS } from "@/lib/constants";
 
@@ -14,6 +13,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing token" }, { status: 400 });
     }
 
+    const { getAuth } = await import("firebase-admin/auth");
     const auth = getAuth();
     const decodedToken = await auth.verifyIdToken(idToken);
 
