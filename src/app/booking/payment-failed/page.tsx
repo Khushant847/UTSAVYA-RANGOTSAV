@@ -1,17 +1,26 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { XCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBookingStore } from "@/stores/booking-store";
+import { markPaymentFailed } from "@/actions/booking";
 
 function PaymentFailedContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const resetBooking = useBookingStore((s) => s.resetBooking);
   const orderId = searchParams.get("orderId");
+  const markedRef = useRef(false);
+
+  useEffect(() => {
+    if (orderId && !markedRef.current) {
+      markedRef.current = true;
+      markPaymentFailed(orderId).catch(() => {});
+    }
+  }, [orderId]);
 
   const retry = () => {
     resetBooking();
