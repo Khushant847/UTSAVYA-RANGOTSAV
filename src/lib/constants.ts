@@ -34,7 +34,7 @@ export const PASS_TYPES = {
   family: {
     id: "family",
     name: "FAMILY / GROUP PASS",
-    price: 99900,
+    price: 104900,
     entries: 5,
     label: "Entry for 5 people",
     badge: "BEST VALUE",
