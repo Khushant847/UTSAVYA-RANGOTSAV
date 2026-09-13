@@ -41,6 +41,9 @@ export function QRScanner() {
   const [resultDialogOpen, setResultDialogOpen] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Synchronous lock so the camera decoding the SAME code repeatedly can never
+  // fire a second scan while the first one is still being verified.
+  const processingRef = useRef<string | null>(null);
 
   const extractToken = useCallback((scannedText: string): string | null => {
     try {
@@ -62,9 +65,22 @@ export function QRScanner() {
     async (qrText: string) => {
       const token = extractToken(qrText);
       if (!token || token === lastScanned) return;
+      // Drop any scan while a ticket is still being verified (same code keeps
+      // getting decoded by the camera; without this it double-scanned: VALID
+      // then immediately INVALID).
+      if (processingRef.current !== null) return;
+      processingRef.current = token;
+
+      // Stop decoding RIGHT NOW so this code can't be scanned again by accident.
+      if (scannerRef.current) {
+        try {
+          scannerRef.current.pause();
+        } catch {}
+      }
 
       setLastScanned(token);
       setScanning(true);
+      setResult(null);
 
       try {
         const scanResult = await scanTicket(token);
@@ -80,14 +96,8 @@ export function QRScanner() {
         setResult({ success: false, reason: "Verification error" });
       } finally {
         setScanning(false);
-        // Lock the scanner: show the result dialog and pause decoding until
-        // the gate attendant closes it, so no next ticket gets scanned by mistake.
         setResultDialogOpen(true);
-        if (scannerRef.current) {
-          try {
-            scannerRef.current.pause();
-          } catch {}
-        }
+        processingRef.current = null;
       }
     },
     [extractToken, lastScanned]
@@ -130,8 +140,13 @@ export function QRScanner() {
     }
   }, [cameraActive]);
 
-  const resumeScanner = useCallback(() => {
+  const resumeScanner = useCallback((allowSameToken = false) => {
     setResultDialogOpen(false);
+    // When the attendant explicitly wants another entry of the SAME pass
+    // (e.g. 2nd person of a duo), forget the previous token so it can scan again.
+    if (allowSameToken) {
+      setLastScanned(null);
+    }
     if (scannerRef.current) {
       try {
         scannerRef.current.resume();
@@ -369,6 +384,16 @@ export function QRScanner() {
             <div className="py-6 text-center text-sm text-purple-200/70">No scan result.</div>
           )}
           <DialogFooter className="sm:justify-center">
+            {result?.success && result.ticket && result.ticket.remainingEntries > 0 && (
+              <Button
+                variant="outline"
+                className="w-full gap-2 sm:w-auto"
+                onClick={() => resumeScanner(true)}
+              >
+                <RotateCw className="h-4 w-4" />
+                SCAN SAME PASS AGAIN
+              </Button>
+            )}
             <DialogClose asChild>
               <Button className="w-full gap-2 sm:w-auto">
                 <ScanLine className="h-4 w-4" />
