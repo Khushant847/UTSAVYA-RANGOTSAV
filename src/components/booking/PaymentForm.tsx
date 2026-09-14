@@ -21,6 +21,7 @@ import { useBookingStore } from "@/stores/booking-store";
 import { useRazorpay } from "@/hooks/useRazorpay";
 import { formatPrice } from "@/lib/utils";
 import { createRazorpayOrder, verifyPayment } from "@/actions/booking";
+import { PASS_TYPES } from "@/lib/constants";
 
 export function PaymentForm() {
   const router = useRouter();
@@ -43,8 +44,7 @@ export function PaymentForm() {
     setIsMounted(true);
   }, []);
 
-  const passLabel =
-    passType === "single" ? "SINGLE PASS" : passType === "duo" ? "DUO PASS" : "FAMILY / GROUP PASS";
+  const passLabel = PASS_TYPES[passType as keyof typeof PASS_TYPES]?.name ?? "PASS";
 
   const handleProceedToPayment = async () => {
     if (!name || !email || !mobile || !passType) {

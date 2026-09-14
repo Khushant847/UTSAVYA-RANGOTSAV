@@ -12,7 +12,7 @@ export const personalDetailsSchema = z.object({
 });
 
 export const passSelectionSchema = z.object({
-  passType: z.enum(['single', 'duo', 'family'], {
+  passType: z.enum(['single', 'duo'], {
     required_error: 'Please select a pass type',
   }),
 });

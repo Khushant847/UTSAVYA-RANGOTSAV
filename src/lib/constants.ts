@@ -31,17 +31,11 @@ export const PASS_TYPES = {
     label: "Entry for 2 people",
     badge: "POPULAR",
   },
-  family: {
-    id: "family",
-    name: "FAMILY / GROUP PASS",
-    price: 104900,
-    entries: 5,
-    label: "Entry for 5 people",
-    badge: "BEST VALUE",
-  },
 } as const;
 
-export type PassTypeId = keyof typeof PASS_TYPES;
+// "family" remains in the union only for legacy label maps (already-sold Family/Group passes
+// must still render their names). It is NOT offered for sale anywhere.
+export type PassTypeId = keyof typeof PASS_TYPES | "family";
 
 export const COLLECTIONS = {
   tickets: "tickets",

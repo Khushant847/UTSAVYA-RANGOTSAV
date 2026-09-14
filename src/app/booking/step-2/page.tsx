@@ -36,7 +36,8 @@ export default function BookingStep2() {
 
   const handleContinue = () => {
     if (!selected) return;
-    const pass = PASS_TYPES[selected];
+    const pass = PASS_TYPES[selected as keyof typeof PASS_TYPES];
+    if (!pass) return;
     setPassSelection({
       passType: selected,
       passPrice: pass.price,
@@ -56,9 +57,9 @@ export default function BookingStep2() {
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2">
         {(Object.keys(PASS_TYPES) as PassTypeId[]).map((key) => {
-          const pass = PASS_TYPES[key];
+          const pass = PASS_TYPES[key as keyof typeof PASS_TYPES];
           const meta = passMeta[key];
           const isSelected = selected === key;
 

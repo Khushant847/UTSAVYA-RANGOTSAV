@@ -29,7 +29,7 @@ export async function createRazorpayOrder(input: CreateOrderInput) {
     throw new Error(validation.error.errors[0].message);
   }
 
-  const pass = PASS_TYPES[input.passType];
+  const pass = PASS_TYPES[input.passType as keyof typeof PASS_TYPES];
   if (!pass) {
     throw new Error("Invalid pass type selected.");
   }

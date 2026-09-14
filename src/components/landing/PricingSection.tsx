@@ -64,9 +64,9 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           {(Object.keys(PASS_TYPES) as PassTypeId[]).map((key) => {
-            const pass = PASS_TYPES[key];
+            const pass = PASS_TYPES[key as keyof typeof PASS_TYPES];
             const meta = passMeta[key];
             const isPopular = key === "duo";
 
