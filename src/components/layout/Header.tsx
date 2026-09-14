@@ -31,6 +31,12 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // The admin portal is a separate dashboard; the homepage header (logo, nav,
+  // "GET YOUR PASS") must not show there — it overlapped the admin layout.
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <header
       className={cn(

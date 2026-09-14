@@ -3,7 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { ResponsiveFooter } from "@/components/layout/ResponsiveFooter";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -49,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <Header />
         <main className="flex-1">{children}</main>
-        <Footer />
+        <ResponsiveFooter />
         <Toaster
           position="top-center"
           toastOptions={{
