@@ -26,7 +26,7 @@ export const PASS_TYPES = {
   duo: {
     id: "duo",
     name: "DUO PASS",
-    price: 59900,
+    price: 54900,
     entries: 2,
     label: "Entry for 2 people",
     badge: "POPULAR",
