@@ -18,7 +18,7 @@ export const PASS_TYPES = {
   single: {
     id: "single",
     name: "SINGLE PASS",
-    price: 24900,
+    price: 29900,
     entries: 1,
     label: "Entry for 1 person",
     badge: null,
@@ -26,7 +26,7 @@ export const PASS_TYPES = {
   duo: {
     id: "duo",
     name: "DUO PASS",
-    price: 44900,
+    price: 59900,
     entries: 2,
     label: "Entry for 2 people",
     badge: "POPULAR",

@@ -5,7 +5,7 @@ A production-ready ticket booking website and admin portal for **UTSAVYA RANGOTS
 ## Features
 
 - **Public Website** — Festive premium UI (midnight navy, royal purple, metallic gold), event details, pass pricing, terms & contact.
-- **Booking Flow** — Enter details → Select pass (Single ₹249 / Duo ₹449 / Family ₹999) → Pay → Digital ticket.
+- **Booking Flow** — Enter details → Select pass (Single ₹299 / Duo ₹599) → Pay → Digital ticket.
 - **Razorpay Payments** — Server-side order creation, HMAC signature verification, webhook handling (idempotent), no secret keys in frontend.
 - **Digital Ticket** — Unique Booking ID (`UTS26-XXXXXX`), Ticket ID (`UV26-XXXXXXXX`), secure QR token.
 - **QR Entry System** — Atomically enforced entries (`allowedEntries` / `usedEntries` / `remainingEntries`). One QR cannot permit unlimited entry.
@@ -141,9 +141,8 @@ Firebase Firestore (Admin SDK only)
 
 ## Testing Checklist
 
-- [ ] Single Pass payment (₹249)
-- [ ] Duo Pass payment (₹449)
-- [ ] Family Pass payment (₹999)
+- [ ] Single Pass payment (₹299)
+- [ ] Duo Pass payment (₹599)
 - [ ] Failed payment → "TRY AGAIN"
 - [ ] Duplicate payment callback/webhook → no duplicate ticket
 - [ ] QR renders on digital pass
